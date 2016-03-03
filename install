@@ -1,0 +1,59 @@
+#!/bin/sh
+correct=""
+until [ "$correct" = "y" ]; do
+	printf "Enter your ssh sign-in user name (e.g., xqi01): "
+	read ssh_user
+	printf "Enter your ssh domain (e.g., dell24.cs.tufts.edu): "
+	read ssh_domain
+	printf "Is this correct: %s@%s? (y/n) " "$ssh_user" "$ssh_domain"
+	read correct
+	case $correct in
+		"y" ) 
+        printf "OK, I will setup the script to ssh into %s@%s.\n" "$ssh_user" "$ssh_domain" ;;
+		"n" ) continue ;;
+		* ) echo "Invalid option." 
+            continue;;
+	esac
+done
+
+echo "Editing your .bashrc/.cshrc..."
+if [ -f ~/.bashrc ]; then
+	echo "Editing your .bashrc"
+	cat >> ~/.bashrc <<- EOF
+	export SSH_USER="$ssh_user"
+	export SSH_DOMAIN="$ssh_domain"
+	EOF
+elif [ -f ~/.cshrc ]; then
+	echo "Editing your .cshrc"
+	cat >> ~/.bashrc <<- EOF
+	export SSH_USER="$ssh_user"
+	export SSH_DOMAIN="$ssh_domain"
+	EOF
+else
+	echo "Editing your .profile..."
+	cat >> ~/.profile <<- EOF
+	export SSH_USER="$ssh_user"
+	export SSH_DOMAIN="$ssh_domain"
+	EOF
+fi
+
+echo "Installing the script to your /usr/bin..."
+printf "What would you like your script to be called? "
+read script_name
+cp ./login /usr/bin/$script_name > /dev/null 2>&1
+if [ "$?" = 1 ]; then
+	echo "Need to sudo..."
+	sudo cp ./sign_in.sh /usr/bin/$script_name > /dev/null 2>&1
+	sudo chmod 755 /usr/bin/$script_name
+else
+	chmod 755 /usr/bin/$script_name
+fi
+
+cat << EOF
+Great! You have installed the ssh quick sign in script. Next time, simply type 
+"$script_name" in your terminal to log in to $ssh_user@$ssh_domain. Note that 
+this might not take effect until either: when you restart a new terminal, or: 
+when you log out and log back in.
+Note that you might still have to type in a password in order to sign in. To 
+avoid this tediousness, use ssh-keygen to create an RSA key. 
+EOF
