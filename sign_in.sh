@@ -6,6 +6,6 @@ elif [ -z "$SSH_DOMAIN" ]; then
 	echo "SSH_DOMAIN is not defined. Unable to ssh into your account."
 	echo "Run the install script and re-login."
 else
-	printf "ssh-ing into %s@%s..." "$SSH_USER" "$SSH_DOMAIN"
+	printf "ssh-ing into %s@%s...\n" "$SSH_USER" "$SSH_DOMAIN"
 	ssh -X $SSH_USER@$SSH_DOMAIN
 fi
